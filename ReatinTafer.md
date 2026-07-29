@@ -250,16 +250,4 @@ text
 
 ---
 
-## 🎯 Özet: Yapılan Değişiklikler
 
-| Eski (Java + Selenium) | Yeni (TypeScript + Playwright) |
-|------------------------|--------------------------------|
-| Java, Maven, Selenium | TypeScript, Node.js, Playwright |
-| TestNG / JUnit | Playwright Test Runner |
-| Cucumber Feature Dosyaları | Playwright Test Dosyaları (.spec.ts) |
-| Extent / Allure | Allure / Playwright HTML |
-| WebDriver Manager | `npx playwright install` |
-| `.properties` | `.env` |
-| `pom.xml` | `package.json` |
-
----
