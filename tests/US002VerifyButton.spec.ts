@@ -1,6 +1,7 @@
 // tests/homepage.spec.ts
 import { test, expect } from '@playwright/test';
 import { ReusableMethods } from '../utils/ReusableMethods';
+import {ClickUtils} from "../utils/clickUtils";
 
 // ✅ BİRİNCİ TEST - Butonların görünürlüğü
 test('US002_TC01 : Site ust barinda kolay linkler (Categories, Home, Courses, Instructors, Store,Blog) goruntulenmeli.', async ({ page }) => {
@@ -283,4 +284,23 @@ test('US002TC05--> RegisterPage Checkbox kutusuna basmak', async ({ page }) => {
     });
 
     console.log('✅ Test tamamlandı!');
+});
+
+test('US002TC06 --> Store Sayfasi radio butonlari testi', async ({ page }) => {
+    const click = new ClickUtils(page);
+
+    await page.goto('https://qa.instulearn.com/');
+
+    await click.clickByText('Store');
+
+    await click.clickByText('Free');
+
+    // Free Shipping
+    await click.clickByText('Free Shipping');
+
+    await click.clickByText('Discount');
+
+
+
+
 });
