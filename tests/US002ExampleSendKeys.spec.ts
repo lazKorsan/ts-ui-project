@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { ClickUtils } from '../utils/clickUtils';
-import { SendKeysUtils } from '../utils/sendKeysUtils';
+import { SendKeysUtils } from '../utils/SendKeysUtils';
 
 test('Süper SendKeysUtils ile text gönder', async ({ page }) => {
     const click = new ClickUtils(page);
