@@ -299,8 +299,25 @@ test('US002TC06 --> Store Sayfasi radio butonlari testi', async ({ page }) => {
     await click.clickByText('Free Shipping');
 
     await click.clickByText('Discount');
+});
 
 
 
+test('US002_TC07 --> Card ve Notifications buttonları görünür ve aktif olmalı.', async ({ page }) => {
 
+    // dropDown Menude Cart ve Shopping Buttonlar Playwright Driver da gorulmuyor.
+    const methods = new ReusableMethods(page);
+    await page.goto('https://qa.instulearn.com/');
+    console.log("=".repeat(60));
+    console.log('✅US002_TC07 --> Card ve Notifications buttonları görünür ve aktif olmalı.');
+    console.log("=".repeat(60));
+
+    const cartButton = page.getByRole('button', {name:'Cart'});
+    await methods.verifyButton(cartButton);
+
+    const notificationsButton = page.getByRole('button', {name:'Notifications'});
+    await methods.verifyButton(notificationsButton);
+
+    const click = new ClickUtils(page);
+    await click.clickById("navbarShopingCart")
 });
