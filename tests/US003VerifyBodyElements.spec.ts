@@ -62,3 +62,40 @@ test('US003_TC01_V4 --> Anasayfa body bölümünde \'Transform Your Future with 
     await expect(futureText).toBeVisible();
 
 });
+// search?search=Math
+// Anasayfa body bolumunde search box gorunur ve aktif olmalı
+
+test('US003_TC02 --> Anasayfa body bölümünde search box gorunur ve aktif olmalı', async ({ page }) => {
+    await page.goto('https://qa.instulearn.com/');
+
+    const methods = new ReusableMethods(page);
+    console.log("=".repeat(60));
+    console.log('✅US003_TC01_V4 --> Anasayfa body bölümünde \'Transform Your Future with InstuLearn...\' baslıgı görünür olmalı');
+    console.log("=".repeat(60));
+
+    await expect(page.getByRole('textbox', { name: 'Search courses and' })).toBeVisible();
+
+    await page.getByRole('textbox', { name: 'Search courses and' }).fill('Math');
+    await page.getByRole('textbox', { name: 'Search courses and' }).press('Enter');
+    await page.getByRole('button', { name: 'Search' }).click();
+
+    await expect(page).toHaveURL(/search\?search=Math/);
+
+    await methods.verifyUrl('Math')
+
+});
+
+// Search butonu gorunur ve aktif olmalı
+test('US003_TC03 --> Anasayfa body bölümünde search butonu gorunur ve aktif olmalı', async ({ page }) => {
+
+    await page.goto('https://qa.instulearn.com/');
+
+    const methods = new ReusableMethods(page);
+
+    console.log("=".repeat(60));
+    console.log('✅US003_TC03 --> Anasayfa body bölümünde search butonu gorunur ve aktif olmalı');
+    console.log("=".repeat(60));
+
+    await expect(page.getByRole('button', { name: 'Search' })).toBeVisible();
+
+});
