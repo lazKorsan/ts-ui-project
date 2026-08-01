@@ -18,5 +18,7 @@ node_modules/
 ###allureReports###
 allure-results/
 allure-report/
+###screenShots###
+/screenshots/
 
 
