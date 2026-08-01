@@ -302,8 +302,6 @@ test('US002TC06 --> Store Sayfasi radio butonlari testi', async ({ page }) => {
     await click.clickByText('Discount');
 });
 
-
-
 test('US002_TC07 --> Card ve Notifications buttonları görünür ve aktif olmalı.', async ({ page }) => {
 
     // dropDown Menude Cart ve Shopping Buttonlar Playwright Driver da gorulmuyor.
@@ -355,5 +353,24 @@ test('US002_TC09 --> Start learning ikonu görünür olmalı ve tıklandıgında
 
     await methods.verifyUrl('login');
 
+
+});
+
+// Login | Register linkleri görünür olmalı ve tıklandıgında ilgili sayfaya yönlendirilmeli
+test('US002_TC10 --> Login ve Register linkleri görünür olmalı ve tıklandıgında ilgili sayfaya yönlendirilmeli', async ({ page }) => {
+
+    const methods = new ReusableMethods(page);
+    console.log("=".repeat(60));
+    console.log('✅US002_TC10 --> Login ve Register linkleri görünür olmalı ve tıklandıgında ilgili sayfaya yönlendirilmeli');
+    console.log("=".repeat(60));
+
+    await page.goto('https://qa.instulearn.com/');
+    await expect(page.getByRole('link', { name: 'Login' })).toBeVisible();
+    await page.getByRole('link', { name: 'Login' }).click();
+    await methods.verifyUrl('login');
+    await page.getByRole('link', { name: 'Home' }).click();
+    await expect(page.getByRole('link', { name: 'Register' })).toBeVisible();
+    await page.getByRole('link', { name: 'Register' }).click();
+    await methods.verifyUrl('register');
 
 });
