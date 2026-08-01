@@ -2,6 +2,7 @@
 import { test, expect } from '@playwright/test';
 import { ReusableMethods } from '../utils/ReusableMethods';
 import {ClickUtils} from "../utils/clickUtils";
+import {SendKeysUtils} from "../utils/SendKeysUtils";
 
 // ✅ BİRİNCİ TEST - Butonların görünürlüğü
 test('US002_TC01 : Site ust barinda kolay linkler (Categories, Home, Courses, Instructors, Store,Blog) goruntulenmeli.', async ({ page }) => {
@@ -320,4 +321,39 @@ test('US002_TC07 --> Card ve Notifications buttonları görünür ve aktif olmal
 
     const click = new ClickUtils(page);
     await click.clickById("navbarShopingCart")
+});
+
+test('US002_TC08 --> Search Text Box goruntulenmeli ve arama yapilabilmeli.', async ({ page }) => {
+
+    console.log("=".repeat(60));
+    console.log('✅US002_TC08 --> Search Text Box goruntulenmeli ve arama yapilabilmeli.');
+    console.log("=".repeat(60));
+
+    const click = new ClickUtils(page);
+    const sendKeys = new SendKeysUtils(page);
+
+
+    await page.goto('https://qa.instulearn.com/');
+    await expect(page.getByRole('textbox', { name: 'Search', exact: true })).toBeVisible();
+
+    await sendKeys.sendKeysByText("Search...", "Math")
+
+    const searchIconButton = page.getByRole('button').first()
+    await searchIconButton.click()
+
+});
+
+test('US002_TC09 --> Start learning ikonu görünür olmalı ve tıklandıgında ilgili sayfaya yonlendirmeli', async ({ page }) => {
+
+    const methods = new ReusableMethods(page);
+    console.log("=".repeat(60));
+    console.log('✅US002_TC09 --> Start learning ikonu görünür olmalı ve tıklandıgında ilgili sayfaya yonlendirmeli');
+    console.log("=".repeat(60));
+    await page.goto('https://qa.instulearn.com/');
+    await expect(page.getByRole('link', { name: 'Start learning' })).toBeVisible();
+    await page.getByRole('link', { name: 'Start learning' }).click();
+
+    await methods.verifyUrl('login');
+
+
 });
