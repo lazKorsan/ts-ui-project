@@ -98,4 +98,9 @@ test('US003_TC03 --> Anasayfa body bölümünde search butonu gorunur ve aktif o
 
     await expect(page.getByRole('button', { name: 'Search' })).toBeVisible();
 
+    const searchButton = page.getByRole('button', { name: 'Search' });
+    await methods.verifyButton(searchButton);
+
+
+
 });
