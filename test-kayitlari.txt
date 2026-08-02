@@ -1,0 +1,4 @@
+[2026-08-03 00:44:57] [INFO]: === TEST BAŞLADI ===
+[2026-08-03 00:44:57] [INFO]: InstuLearn ana sayfasına gidiliyor...
+[2026-08-03 00:45:06] [INFO]: Ana sayfaya başarıyla gidildi.
+[2026-08-03 00:45:06] [INFO]: === TEST TAMAMLANDI ===
