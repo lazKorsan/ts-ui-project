@@ -20,5 +20,6 @@ allure-results/
 allure-report/
 ###screenShots###
 /screenshots/
-
+###
+/logs/
 
