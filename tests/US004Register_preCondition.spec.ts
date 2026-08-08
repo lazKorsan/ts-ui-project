@@ -11,6 +11,7 @@ test('test', async ({ page }) => {
     const methods = new ReusableMethods(page);
     const sendKeys = new SendKeysUtils(page);
 
+    // Register Butona ismi işe tiklamakliklik
     await click.clickByText('Register');
 
     await click.clickByText('Student')
@@ -19,11 +20,39 @@ test('test', async ({ page }) => {
 
     await sendKeys.sendKeysByText('full_name', 'ahmet');
 
-    await page.getByRole('textbox', { name: 'Password:', exact: true }).fill('Query.2026!');
+    await sendKeys.sendByXpath('//input[@id="password"]','Query.2026!')
 
+ //    await page.getByRole('textbox', { name: 'Password:', exact: true }).fill('Query.2026!');
     await page.getByRole('textbox', { name: 'Retype Password:', exact: true }).scrollIntoViewIfNeeded();
 
-    await page.getByRole('textbox', { name: 'Retype Password:', exact: true }).fill('Query.2026!');
+    await sendKeys.sendByXpath('//input[@id="confirm_password"]','Query.2026!')
+
+
+
+
+
+
+    // Scroll yap
+    await page.getByText('I agree with terms & rules').scrollIntoViewIfNeeded();
+    await page.waitForTimeout(500);
+
+    // JavaScript ile tıkla
+    await page.evaluate(() => {
+        // Tüm label'ları bul
+        const allLabels = document.querySelectorAll('label');
+
+        // Her label'ı kontrol et
+        allLabels.forEach(label => {
+            const text = label.textContent || '';
+            if (text.includes('I agree with terms') || text.includes('terms & rules')) {
+                label.click();
+                console.log('✅ Checkbox tıklandı!');
+            }
+        });
+    });
+
+    console.log('✅ Test tamamlandı!');
+
 
 
 
