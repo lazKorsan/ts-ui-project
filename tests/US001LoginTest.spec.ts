@@ -7,6 +7,12 @@ test('Başarılı giriş ve panel kontrolü', async ({ page }) => {
     await page.getByRole('textbox', { name: 'Email:' }).fill('ahmet205555@instuLearn.com');
     await page.getByRole('textbox', { name: 'Password:' }).fill('Query.2026!');
 
+    // getByRole('textbox', { name: 'Password:', exact: true })
+
+
+
+
+
     const loginButton = page.getByRole('button', { name: 'Login' });
 
     // Login sonrası URL bekleme
