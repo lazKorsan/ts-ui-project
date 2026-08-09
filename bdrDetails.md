@@ -36,7 +36,7 @@
 
 ---
 
-## US_004 - Visitor
+## US_004 - Register
 **Açıklama:** Bir kullanici olarak sitenin fonksiyonlarindan faydalanabilmek icin siteye kayit olabilmek istiyorum
 **Öncelik (Priority):** Highest
 
@@ -54,7 +54,7 @@
 
 ---
 
-## US_005 - Register
+## US_005 - Login
 **Açıklama:** Bir kullanici olarak siteye kaydoldugum email ve password bilgilerimle login olabilmek istiyorum.
 **Öncelik (Priority):** Highest
 
