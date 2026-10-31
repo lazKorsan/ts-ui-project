@@ -1,8 +1,7 @@
-import { test, expect } from '@playwright/test';
-import { ReusableMethods } from '../utils/ReusableMethods';
-import {ClickUtils} from "../utils/clickUtils";
+import {test} from '@playwright/test';
+import {ReusableMethods} from '../utils/ReusableMethods';
+import {ClickUtils} from "../utils/ClickUtils";
 import {SendKeysUtils} from "../utils/SendKeysUtils";
-import { logger } from '../utils/logger';
 
 test('test', async ({ page }) => {
     await page.goto('https://qa.instulearn.com/');

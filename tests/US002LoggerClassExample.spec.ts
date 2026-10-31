@@ -1,14 +1,15 @@
 // C:\Users\user\WebstormProjects\ts-ui-project\tests\US002LoggerClassExample.spec.ts
-import { test, expect } from '@playwright/test';
+import {test} from '@playwright/test';
 
-import { logger } from '../utils/logger';
+
+import {LoggerHelper} from "../utils/LoggerHelper";
 
 test('InstuLearn Ana Sayfa Log Testi', async ({ page }) => {
-    logger.info('=== TEST BAŞLADI ===');
+    LoggerHelper.logInfo('=== TEST BAŞLADI ===');
 
-    logger.info('InstuLearn ana sayfasına gidiliyor...');
+    LoggerHelper.logInfo('InstuLearn ana sayfasına gidiliyor...');
     await page.goto('https://qa.instulearn.com/');
 
-    logger.info('Ana sayfaya başarıyla gidildi.');
-    logger.info('=== TEST TAMAMLANDI ===');
+    LoggerHelper.logInfo('Ana sayfaya başarıyla gidildi.');
+    LoggerHelper.logInfo('=== TEST TAMAMLANDI ===');
 });

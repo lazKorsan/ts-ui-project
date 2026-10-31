@@ -1,8 +1,9 @@
-import { test, expect } from '@playwright/test';
-import { ReusableMethods } from '../utils/ReusableMethods';
-import { ClickUtils } from "../utils/clickUtils";
-import { SendKeysUtils } from "../utils/SendKeysUtils";
-import { logger } from '../utils/logger';
+import {test} from '@playwright/test';
+import {ReusableMethods} from '../utils/ReusableMethods';
+import {ClickUtils} from "../utils/ClickUtils";
+import {SendKeysUtils} from "../utils/SendKeysUtils";
+
+import {LoggerHelper} from "../utils/LoggerHelper";
 
 
 export type UserRole = 'student' | 'teacher' | 'organizer';
@@ -12,24 +13,24 @@ test('US004_TC01--Randomly register test', async ({ page }) => {
     const sendKeys = new SendKeysUtils(page);
     const methods = new ReusableMethods(page);
 
-    logger.info("=".repeat(90));
-    logger.info("US004_TC01 Test Koşuluyor")
-    logger.info("=".repeat(90));
+    LoggerHelper.logInfo("=".repeat(90));
+    LoggerHelper.logInfo("US004_TC01 Test Koşuluyor")
+    LoggerHelper.logInfo("=".repeat(90));
 
     // Kullanici anaSayfa gider
     await page.goto('https://qa.instulearn.com/');
 
     // Kullanici Register Butonuna Basar
     await click.clickByText('Register');
-    logger.info('Kullanici Register Butonuna Basti')
+    LoggerHelper.logInfo('Kullanici Register Butonuna Basti')
 
     // register sayfasinda olduğunu doğrular
     await methods.verifyUrl('register');
-    logger.info('Kullanici Register sayfasinda oldugunu dogrular')
+    LoggerHelper.logInfo('Kullanici Register sayfasinda oldugunu dogrular')
 
     // 1 ile 100 arasında rastgele bir tam sayı üretmekliklik
     const randomNumber = Math.floor(Math.random() * 100) + 1;
-    logger.info(`Üretilen Rastgele Sayı: ${randomNumber}`);
+    LoggerHelper.logInfo(`Üretilen Rastgele Sayı: ${randomNumber}`);
 
     // 2. Sayı aralığına göre rolü belirlemekliklik
     let selectedRole: UserRole;
@@ -43,7 +44,7 @@ test('US004_TC01--Randomly register test', async ({ page }) => {
     }
 
     // Uretilen randomly role
-    logger.info(`Üretilen Rastgele Role: ${selectedRole}`);
+    LoggerHelper.logInfo(`Üretilen Rastgele Role: ${selectedRole}`);
 
     // Gelen sayiya gore hesap uretmek islemleri once zaman damgası olusturmakliklik
     const timeString = new Date().toLocaleTimeString('tr-TR');
@@ -57,7 +58,7 @@ test('US004_TC01--Randomly register test', async ({ page }) => {
         case 'student':
             // 1. İşlem: Öğrenci butonuna basmak
             await click.clickByText('Student');
-            logger.info('Kayıt türü olarak Student seçildi.');
+            LoggerHelper.logInfo('Kayıt türü olarak Student seçildi.');
 
             // 2. İşlem: Öğrenci mailini belirlemek
             finalEmail = `ahmet.student${lastSixDigits}@instuLearn.com`;
@@ -66,7 +67,7 @@ test('US004_TC01--Randomly register test', async ({ page }) => {
         case 'teacher':
             // 1. İşlem: Öğretmen butonuna basmak (Instulearn arayüzünde Instructor olarak geçer)
             await click.clickByText('Instructor');
-            logger.info('Kayıt türü olarak Instructor seçildi.');
+            LoggerHelper.logInfo('Kayıt türü olarak Instructor seçildi.');
 
             // 2. İşlem: Öğretmen mailini belirlemek
             finalEmail = `ahmet.teacher${lastSixDigits}@instuLearn.com`;
@@ -75,7 +76,7 @@ test('US004_TC01--Randomly register test', async ({ page }) => {
         case 'organizer':
             // 1. İşlem: Organizatör butonuna basmak (Instulearn arayüzünde Organization olarak geçer)
             await click.clickByText('Organization');
-            logger.info('Kayıt türü olarak Organization seçildi.');
+            LoggerHelper.logInfo('Kayıt türü olarak Organization seçildi.');
 
             // 2. İşlem: Organizatör mailini belirlemek
             finalEmail = `ahmet.organizator${lastSixDigits}@instuLearn.com`;
@@ -83,7 +84,7 @@ test('US004_TC01--Randomly register test', async ({ page }) => {
     }
 
     // Seçilen dinamik e-postayı logla
-    logger.info(`Formda kullanılacak e-posta adresi: ${finalEmail}`);
+    LoggerHelper.logInfo(`Formda kullanılacak e-posta adresi: ${finalEmail}`);
 
     // Bundan sonraki adımlarda tek bir 'finalEmail' değişkenini input alanına gönderebilirsiniz
     // Örnek kullanım:
@@ -120,7 +121,7 @@ test('US004_TC01--Randomly register test', async ({ page }) => {
         });
     });
 
-    logger.info('✅ Test tamamlandı!');
+    LoggerHelper.logInfo('✅ Test tamamlandı!');
 
     await click.click('#app > div.container > div > div:nth-child(2) > div > form > button');
 

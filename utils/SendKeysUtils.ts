@@ -1,4 +1,5 @@
-import { Page, Locator } from '@playwright/test';
+import {Locator, Page} from '@playwright/test';
+import {LoggerHelper} from "./LoggerHelper";
 
 // ============================================
 // CONFIGURATION
@@ -64,9 +65,11 @@ export class SendKeysUtils {
             const sent = await this.performSendKeysWithFallback(element, text, opts);
 
             // 8. Highlight'ı kaldır
+           /*
             if (opts.highlight) {
                 await this.unhighlightElement(element);
             }
+            */
 
             if (sent) {
                 this.log(`✅ TEXT GÖNDERİLDİ - '${text}'`);
@@ -109,9 +112,11 @@ export class SendKeysUtils {
 
             const sent = await this.performSendKeysWithFallback(locator, text, opts);
 
+           /*
             if (opts.highlight) {
                 await this.unhighlightElement(locator);
             }
+            */
 
             if (sent) {
                 this.log(`✅ TEXT GÖNDERİLDİ - '${text}'`);
@@ -530,26 +535,69 @@ export class SendKeysUtils {
 
     private async highlightElement(locator: Locator): Promise<void> {
         try {
-            const selector = await this.getSelectorFromLocator(locator);
-            await this.page.evaluate((sel) => {
-                const el = document.querySelector(sel);
-                if (el) {
-                    const originalStyle = el.getAttribute('style');
+            await locator.evaluate((el, duration) => {
+                // Orijinal stili sakla
+                const originalStyle = el.getAttribute('style');
 
-                    // Input alanı için farklı renk
-                    const tagName = el.tagName.toLowerCase();
-                    const highlightColor = tagName === 'input' || tagName === 'textarea'
-                        ? 'border: 3px solid #4A90D9 !important; background-color: #D6EAF8 !important; box-shadow: 0 0 15px rgba(74, 144, 217, 0.5) !important; transition: all 0.2s !important;'
-                        : 'border: 3px solid #F39C12 !important; background-color: #FDEBD0 !important; box-shadow: 0 0 15px rgba(243, 156, 18, 0.5) !important; transition: all 0.2s !important;';
+                // Input/Textarea ise mavi, değilse turuncu highlight
+                const tagName = el.tagName.toLowerCase();
+                const highlightColor = tagName === 'input' || tagName === 'textarea'
+                    ? 'border: 3px solid #4A90D9 !important; background-color: #D6EAF8 !important; box-shadow: 0 0 15px rgba(74, 144, 217, 0.5) !important; transition: all 0.2s !important;'
+                    : 'border: 3px solid #F39C12 !important; background-color: #FDEBD0 !important; box-shadow: 0 0 15px rgba(243, 156, 18, 0.5) !important; transition: all 0.2s !important;';
 
-                    el.setAttribute('style', highlightColor);
-                    // @ts-ignore
-                    el._originalStyle = originalStyle;
-                }
-            }, selector);
-            await this.page.waitForTimeout(CONFIG.HIGHLIGHT_DURATION);
+                el.setAttribute('style', highlightColor);
+
+                // Süre bitince kendi kendine eski haline döndür
+                setTimeout(() => {
+                    if (originalStyle !== null) {
+                        el.setAttribute('style', originalStyle);
+                    } else {
+                        el.removeAttribute('style');
+                    }
+                }, duration);
+
+            }, CONFIG.HIGHLIGHT_DURATION);
+
+            // Elementin o an ekranda parladığını görmek için çok kısa bekle (isteğe bağlı)
+            await this.page.waitForTimeout(100);
         } catch (error: any) {
             // Silent fail
+        }
+    }
+
+    static async sendKeysByText(
+        page: Page,
+        boxName: string,
+        text: string,
+        options?: SendKeysOptions): Promise<boolean> {
+        //this.log(`⌨️ '${boxName}' isimli kutuya metin gönderiliyor: ${text}`);
+        LoggerHelper.logInfo(`⌨️ '${boxName}' isimli kutuya metin gönderiliyor: ${text}`)
+
+        try {
+            const timeout = options?.timeout ?? 5000;
+            const nameRegex = new RegExp(boxName, 'i');
+
+            // Playwright'ın dahili erişilebilirlik ve standart attribute arama stratejileri
+            const combinedLocator = page.getByRole('textbox', { name: nameRegex })
+                .or(page.getByLabel(nameRegex))
+                .or(page.getByPlaceholder(nameRegex))
+                .or(page.locator(`input[name="${boxName}"], textarea[name="${boxName}"]`))
+                .or(page.locator(`input[id="${boxName}"], textarea[id="${boxName}"]`));
+
+            // İlk görünür ve etkileşime girilebilir olanı bekle ve yaz
+            const targetInput = combinedLocator.first();
+
+            // Auto-waiting sayesinde element görünene kadar bekler
+            await targetInput.fill(text, { timeout });
+
+            // this.log(`✅ '${boxName}' isimli kutuya başarıyla metin yazıldı.`);
+            LoggerHelper.logInfo(`✅ '${boxName}' isimli kutuya başarıyla metin yazıldı.`);
+            return true;
+
+        } catch (error) {
+            //this.log(`❌ '${boxName}' isimli kutu bulunamadı veya etkileşime girilemedi. Hata: ${error}`);
+            LoggerHelper.logError(`❌ '${boxName}' isimli kutu bulunamadı veya etkileşime girilemedi. Hata: ${error}`);
+            return false;
         }
     }
 
@@ -661,6 +709,76 @@ export class SendKeysUtils {
             this.log(`⚠️ Sayfa yüklenme beklemesi başarısız: ${error.message}`);
         }
     }
+
+    static async sendKeys(page: Page, selector: string, text: string, options?: SendKeysOptions): Promise<boolean> {
+        const instance = new SendKeysUtils(page);
+        return instance.sendKeys(selector, text, options);
+    }
+
+    static async sendKeysOnLocator(page: Page, locator: Locator, text: string, options?: SendKeysOptions): Promise<boolean> {
+        const instance = new SendKeysUtils(page);
+        return instance.sendKeysOnLocator(locator, text, options);
+    }
+
+    /**
+     * 🧠 Akıllı Yazma (Java'daki smartSendKeys'in Playwright Versiyonu)
+     *
+     * Önce Page Object'in kendi içindeki element bulma metodunu (örn: LoginPage.getInputByName) dener.
+     * Eğer o element listede yoksa veya hata verirse, doğrudan name attribute ile aramaya düşer.
+     *
+     * @param elementName - Feature dosyasından gelen input adı (örn: "username", "password")
+     * @param text - Yazılacak metin
+     * @param elementSupplier - Page objesinden elementi alan fonksiyon (örn: () => loginPage.getInputByName(elementName))
+     * @param options - Opsiyonel yazma ayarları
+     */
+    async smartSendKeys(
+        elementName: string,
+        text: string,
+        elementSupplier: () => Locator,
+        options?: SendKeysOptions
+    ): Promise<boolean> {
+
+        // 1. AŞAMA: Enum/Page Object listesinden bulmayı dene
+        try {
+            const locator = elementSupplier();
+            if (locator) {
+                this.log(`🎯 Element listede (Page/Enum) tanımlı bulundu: "${elementName}"`);
+                return await this.sendKeysOnLocator(locator, text, options);
+            }
+        } catch (error: any) {
+            this.log(`⚠️ Element listede bulunamadı veya hata oluştu: ${error.message?.substring(0, 100)}`);
+            this.log(`🔍 Fallback: Doğrudan name attribute'u ile aranıyor...`);
+        }
+
+        // 2. AŞAMA: Listede yoksa name attribute ile aramaya düş (Fallback)
+        // Önce [name="..."] dene, yoksa placeholder ile dene
+        const nameLocator = this.page.locator(`[name="${elementName}"]`);
+        if (await nameLocator.count() > 0) {
+            this.log(`   ✓ Fallback başarılı: "${elementName}" name attribute'u ile bulundu.`);
+            return await this.sendKeysOnLocator(nameLocator, text, options);
+        }
+
+        const placeholderLocator = this.page.locator(`[placeholder="${elementName}"]`);
+        if (await placeholderLocator.count() > 0) {
+            this.log(`   ✓ Fallback başarılı: "${elementName}" placeholder ile bulundu.`);
+            return await this.sendKeysOnLocator(placeholderLocator, text, options);
+        }
+
+        this.log(`❌ Fallback da başarısız: "${elementName}" hiçbir şekilde bulunamadı.`);
+        return false;
+    }
+
+    static async smartSendKeys(
+        page: Page,
+        elementName: string,
+        text: string,
+        elementSupplier: () => Locator,
+        options?: SendKeysOptions
+    ): Promise<boolean> {
+        const instance = new SendKeysUtils(page);
+        return instance.smartSendKeys(elementName, text, elementSupplier, options);
+    }
+
 
     // ============================================
     // YARDIMCI METHODLAR

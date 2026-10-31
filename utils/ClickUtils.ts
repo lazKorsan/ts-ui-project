@@ -1,4 +1,5 @@
-import { Page, Locator } from '@playwright/test';
+import {Locator, Page} from '@playwright/test';
+import {LoggerHelper} from "./LoggerHelper";
 
 // ============================================
 // CONFIGURATION
@@ -130,9 +131,11 @@ export class ClickUtils {
 
             const clicked = await this.performClickWithFallback(locator, opts);
 
+           /*
             if (opts.highlight) {
                 await this.unhighlightElement(locator);
             }
+            */
 
             if (clicked) {
                 this.log(`✅ LOCATOR TIKLANDI`);
@@ -144,6 +147,87 @@ export class ClickUtils {
             this.log(`❌ HATA: ${error.message}`);
             return false;
         }
+    }
+    /**
+     * 🧠 Akıllı Tıklama: Verilen değeri Name, ID, CSS veya Text olarak sırayla dener.
+     * Java'daki 'Touch.clickByName' metodunun Playwright versiyonu.
+     */
+    async clickSmart(identifier: string, options?: ClickOptions): Promise<boolean> {
+        this.log(`🧠 Akıllı arama başlatıldı: "${identifier}"`);
+
+        // 1. Önce name attribute'u olarak dene
+        const nameLocator = this.page.locator(`[name="${identifier}"]`);
+        if (await nameLocator.count() > 0) {
+            this.log(`   ✓ Element "name" attribute'u ile bulundu.`);
+            return this.clickOnLocator(nameLocator, options);
+        }
+
+        // 2. ID olarak dene
+        const idLocator = this.page.locator(`#${identifier}`);
+        if (await idLocator.count() > 0) {
+            this.log(`   ✓ Element "ID" ile bulundu.`);
+            return this.clickOnLocator(idLocator, options);
+        }
+
+        // 3. Text (metin) olarak dene (Butonlar için çok işe yarar)
+        const textLocator = this.page.getByText(identifier, { exact: true });
+        if (await textLocator.count() > 0) {
+            this.log(`   ✓ Element "Metin" ile bulundu.`);
+            return this.clickOnLocator(textLocator, options);
+        }
+
+        // 4. Son çare: Direkt CSS Selector olarak dene
+        this.log(`   ⚠️ Element name, ID veya text ile bulunamadı. CSS Selector olarak deneniyor...`);
+        return this.click(identifier, options);
+    }
+    /**
+     * 🧠 Akıllı Tıklama (Java'daki smartClick'in Playwright Versiyonu)
+     *
+     * Önce Page Object'in kendi içindeki element bulma metodunu (örn: HeaderPage.getHeaderElement) dener.
+     * Eğer o element listede yoksa veya hata verirse, doğrudan Text ile aramaya düşer.
+     *
+     * @param buttonName - Feature dosyasından gelen element adı (örn: "Login", "Categories")
+     * @param elementSupplier - Page objesinden elementi alan fonksiyon (örn: () => headerPage.getHeaderElement(buttonName))
+     * @param options - Opsiyonel tıklama ayarları
+     */
+    async smartClick(
+        buttonName: string,
+        elementSupplier: () => Locator,
+        options?: ClickOptions
+    ): Promise<boolean> {
+
+        // 1. AŞAMA: Enum/Page Object listesinden bulmayı dene
+        try {
+            const locator = elementSupplier();
+            if (locator) {
+                this.log(`🎯 Element listede (Page/Enum) tanımlı bulundu: "${buttonName}"`);
+                return await this.clickOnLocator(locator, options);
+            }
+        } catch (error: any) {
+            this.log(`⚠️ Element listede bulunamadı veya hata oluştu: ${error.message?.substring(0, 100)}`);
+            this.log(`🔍 Fallback: Doğrudan text ile aranıyor...`);
+        }
+
+        // 2. AŞAMA: Listede yoksa Text ile aramaya düş (Fallback)
+        const textClicked = await this.clickByText(buttonName, options);
+
+        if (textClicked) {
+            this.log(`✅ Fallback başarılı: "${buttonName}" metni ile tıklandı.`);
+        } else {
+            this.log(`❌ Fallback da başarısız: "${buttonName}" hiçbir şekilde bulunamadı.`);
+        }
+
+        return textClicked;
+    }
+
+    static async smartClick(
+        page: Page,
+        buttonName: string,
+        elementSupplier: () => Locator,
+        options?: ClickOptions
+    ): Promise<boolean> {
+        const instance = new ClickUtils(page);
+        return instance.smartClick(buttonName, elementSupplier, options);
     }
 
     // ============================================
@@ -416,22 +500,26 @@ export class ClickUtils {
 
     private async highlightElement(locator: Locator): Promise<void> {
         try {
-            const selector = await this.getSelectorFromLocator(locator);
-            await this.page.evaluate((sel) => {
-                const el = document.querySelector(sel) as HTMLElement;
-                if (el) {
-                    const originalStyle = el.getAttribute('style');
-                    el.setAttribute('style',
-                        'border: 3px solid #FF6B6B !important; ' +
-                        'background-color: #FFE66D !important; ' +
-                        'box-shadow: 0 0 20px rgba(255, 107, 107, 0.5) !important; ' +
-                        'transition: all 0.2s !important;'
-                    );
-                    // @ts-ignore - Store original style for later
-                    el._originalStyle = originalStyle;
-                }
-            }, selector);
-            await this.page.waitForTimeout(CONFIG.HIGHLIGHT_DURATION);
+            await locator.evaluate((el, duration) => {
+                const originalStyle = el.getAttribute('style');
+                el.setAttribute('style',
+                    'border: 3px solid #FF6B6B !important; ' +
+                    'background-color: #FFE66D !important; ' +
+                    'box-shadow: 0 0 20px rgba(255, 107, 107, 0.5) !important; ' +
+                    'transition: all 0.2s !important;'
+                );
+                setTimeout(() => {
+                    if (originalStyle !== null) {
+                        el.setAttribute('style', originalStyle);
+                    } else {
+                        el.removeAttribute('style');
+                    }
+                }, duration);
+            }, CONFIG.HIGHLIGHT_DURATION);
+
+            // Bu bekleme olmasın, direkt tıklamaya geçsin ki testler hızlansın
+            // await this.page.waitForTimeout(CONFIG.HIGHLIGHT_DURATION);
+
         } catch (error: any) {
             // Silent fail
         }
@@ -482,6 +570,8 @@ export class ClickUtils {
         }
     }
 
+
+
     // ============================================
     // YARDIMCI METHODLAR
     // ============================================
@@ -510,7 +600,137 @@ export class ClickUtils {
     private log(message: string): void {
         console.log(`[ClickUtils] ${message}`);
     }
+
+    /**
+     * Belirtilen element ismine sırasıyla Role, Text, Filter(hasText) ve XPath yöntemleriyle tıklamayı dener.
+     * @param page Playwright Page nesnesi
+     * @param elementName Tıklanacak elementin üzerindeki metin/isim
+     */
+    static async clickByName(page: Page, elementName: string): Promise<void> {
+        if (!page) {
+
+            LoggerHelper.logError("clickByName metoduna 'page' nesnesi gönderilmedi!")
+            throw new Error("[HATA] ReasubleMethods.clickByName metoduna 'page' nesnesi gönderilmedi!");
+        }
+
+        const timeoutConfig = { timeout: 2000 }; // Her locator için maksimum 2 saniye deneme süresi
+        LoggerHelper.logInfo(`'${elementName}' elementi için dinamik arama ve tıklama işlemi başlatıldı...`);
+
+
+        // 1. İhtimal: getByRole (En yaygın element tiplerini tarar)
+        const roles: Array<'button' | 'link' | 'heading' | 'tab'> = ['button', 'link', 'heading', 'tab'];
+        for (const role of roles) {
+            try {
+                const locator = page.getByRole(role, { name: elementName, exact: false });
+                if (await locator.first().isVisible()) {
+                    await locator.first().click(timeoutConfig);
+                    LoggerHelper.logInfo(`[BAŞARILI] '${elementName}' elementi getByRole('${role}') ile bulundu ve tıklandı.`);
+                    return;
+                }
+            } catch (e) {
+                // Görünür değilse veya tıklanamadıysa bir sonraki role geç
+            }
+        }
+
+        // 2. İhtimal: getByText
+        try {
+            const locator = page.getByText(elementName, { exact: false });
+            if (await locator.first().isVisible()) {
+                await locator.first().click(timeoutConfig);
+                LoggerHelper.logInfo(`[BAŞARILI] '${elementName}' elementi getByText() ile bulundu ve tıklandı.`);
+                return;
+            }
+        } catch (e) {}
+
+        // 3. İhtimal: filter({ hasText })
+        try {
+            const locator = page.locator('*').filter({ hasText: elementName });
+            if (await locator.first().isVisible()) {
+                await locator.first().click(timeoutConfig);
+                LoggerHelper.logInfo(`[BAŞARILI] '${elementName}' elementi filter({ hasText }) ile bulundu ve tıklandı.`);
+                return;
+            }
+        } catch (e) {}
+
+        // 4. İhtimal: XPath ile normalize-space
+        try {
+            const xpathSelector = `//*[normalize-space(text())='${elementName}' or contains(normalize-space(text()), '${elementName}')]`;
+            const locator = page.locator(xpathSelector);
+            if (await locator.first().isVisible()) {
+                await locator.first().click(timeoutConfig);
+                LoggerHelper.logInfo(`[BAŞARILI] '${elementName}' elementi XPath yardımıyla bulundu ve tıklandı.`);
+                return;
+            }
+        } catch (e) {}
+
+        // Eğer hiçbir locator yöntemi başarılı olamadıysa hata fırlatır ve log basar
+        const errorMessage = `'${elementName}' isimli element getByRole, getByText, hasText veya XPath yöntemlerinin hiçbiriyle bulunamadı veya tıklanamadı!`;
+        LoggerHelper.logError(errorMessage);
+        throw new Error(`❌ HATA: ${errorMessage}`);
+    }
+
+    public static async scrollUntilVisible(
+        page: Page,
+        locator: Locator,
+        maxAttempts: number = CONFIG.SCROLL_ATTEMPTS): Promise<boolean> {
+        let attempts = 0;
+        let isVisible = await locator.isVisible();
+
+        while (!isVisible && attempts < maxAttempts) {
+            await page.evaluate((amount: number) => {
+                window.scrollBy(0, amount);
+            }, CONFIG.SCROLL_AMOUNT);
+            await page.waitForTimeout(500);
+            isVisible = await locator.isVisible();
+            attempts++;
+            // this.log(`   📜 Scroll deneme ${attempts}/${maxAttempts}`);
+        }
+
+        if (isVisible) {
+            //this.log(`   ✅ Element ${attempts} denemede bulundu`);
+        } else {
+            //this.log(`   ❌ Element ${maxAttempts} denemede bulunamadı`);
+        }
+        return isVisible;
+    }
+
+    /**
+     * 🎯 Playwright Locator ile tıkla
+     */
+     async clickOnLocator2(locator: Locator, options?: ClickOptions): Promise<boolean> {
+        const opts = { ...this.getDefaultOptions(), ...options };
+
+        try {
+            await this.waitForElement(locator, opts);
+            await this.smartScroll(locator, opts);
+            await this.smartHover(locator, opts);
+
+            if (opts.highlight) {
+                await this.highlightElement(locator);
+            }
+
+            const clicked = await this.performClickWithFallback(locator, opts);
+
+            /*
+             if (opts.highlight) {
+                 await this.unhighlightElement(locator);
+             }
+             */
+
+            if (clicked) {
+                this.log(`✅ LOCATOR TIKLANDI`);
+                await this.page.waitForTimeout(opts.waitAfterClick || CONFIG.WAIT_AFTER_CLICK);
+                return true;
+            }
+            return false;
+        } catch (error: any) {
+            this.log(`❌ HATA: ${error.message}`);
+            return false;
+        }
+    }
 }
+
+
 
 // ============================================
 // TYPES

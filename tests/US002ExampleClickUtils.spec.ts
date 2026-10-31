@@ -1,7 +1,7 @@
-import { test, expect } from '@playwright/test';
-import { ClickUtils } from '../utils/clickUtils';
+import {test} from '@playwright/test';
+import {ClickUtils} from '../utils/ClickUtils';
 
-test('Süper ClickUtils ile tüm elementlere tıkla', async ({ page }) => {
+test('Süper Touch ile tüm elementlere tıkla', async ({ page }) => {
     const click = new ClickUtils(page);
 
     // 🌐 Sayfaya git
