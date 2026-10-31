@@ -16,6 +16,21 @@ Bu proje, **Instulearn** platformunun kalitesini garanti altına almak için gel
 
 ---
 
+---
+## Kurulum adımları sırayla calistirilacak komuticaitions
+npm install typescript --save-dev
+npm install playwright --save-dev
+npx playwright test
+npm install dotenv --save
+npx playwright test --reporter=html
+npx playwright test --reporter=json
+npm install --save-dev allure-playwright
+npm install --save-dev jest-allure
+allure generate allure-results --clean -o allure-report
+
+
+---
+
 ## 🎯 Hedefler
 
 | Hedef | Açıklama |
