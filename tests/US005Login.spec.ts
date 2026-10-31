@@ -1,10 +1,10 @@
 import {test} from '@playwright/test';
-import {ClickUtils} from "../utils/clickUtils";
+import {ClickUtils} from "../utils/ClickUtils";
 import {ReusableMethods} from "../utils/ReusableMethods";
 import {SendKeysUtils} from "../utils/SendKeysUtils";
 
 
-test('US005_TC01 Login Pozitive Test', async ({ page }) => {
+test('US005_TC01 Login Pozitive Test', async ({page}) => {
 
     const click = new ClickUtils(page);
     const sendKeys = new SendKeysUtils(page);
@@ -20,13 +20,13 @@ test('US005_TC01 Login Pozitive Test', async ({ page }) => {
     await methods.verifyUrl('login');
 
     // email grimekliklik
-    await sendKeys.sendKeysByText('Email','ahmet205555@instuLearn.com')
+    await sendKeys.sendKeysByText('Email', 'ahmet205555@instuLearn.com')
 
     // password grimekliklik
-    await sendKeys.sendKeysByText('Password','Query.2026!')
+    await sendKeys.sendKeysByText('Password', 'Query.2026!')
 
     // login butonuna basmakliklik
-    const loginButton = page.getByRole('button', { name: 'Login' });
+    const loginButton = page.getByRole('button', {name: 'Login'});
     await click.clickOnLocator(loginButton);
 
     // panel sayfasinda oldugunu dogrulamakliklik
@@ -35,12 +35,12 @@ test('US005_TC01 Login Pozitive Test', async ({ page }) => {
 });
 
 
-test('US005_TC02 Login Negative Mail False Test', async ({ page }) => {
+test('US005_TC02 Login Negative Mail False Test', async ({page}) => {
     await page.goto('https://qa.instulearn.com/');
 });
 
 
-test('US005_TC03 Login Negative Password False Test', async ({ page }) => {
+test('US005_TC03 Login Negative Password False Test', async ({page}) => {
     await page.goto('https://qa.instulearn.com/');
 });
 

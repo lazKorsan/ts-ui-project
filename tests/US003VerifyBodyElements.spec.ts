@@ -1,7 +1,5 @@
-import { test, expect } from '@playwright/test';
-import { ReusableMethods } from '../utils/ReusableMethods';
-import {ClickUtils} from "../utils/clickUtils";
-import {SendKeysUtils} from "../utils/SendKeysUtils";
+import {expect, test} from '@playwright/test';
+import {ReusableMethods} from '../utils/ReusableMethods';
 
 test('US003_TC01 --> Anasayfa body bölümünde \'Transform Your Future with InstuLearn...\' baslıgı görünür olmalı', async ({ page }) => {
 

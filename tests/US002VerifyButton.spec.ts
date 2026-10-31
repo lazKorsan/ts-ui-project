@@ -1,7 +1,7 @@
 // tests/homepage.spec.ts
-import { test, expect } from '@playwright/test';
-import { ReusableMethods } from '../utils/ReusableMethods';
-import {ClickUtils} from "../utils/clickUtils";
+import {expect, test} from '@playwright/test';
+import {ReusableMethods} from '../utils/ReusableMethods';
+import {ClickUtils} from "../utils/ClickUtils";
 import {SendKeysUtils} from "../utils/SendKeysUtils";
 
 // ✅ BİRİNCİ TEST - Butonların görünürlüğü

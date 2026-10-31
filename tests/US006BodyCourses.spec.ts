@@ -1,8 +1,8 @@
 import {expect, test} from '@playwright/test';
-import {ClickUtils} from "../utils/clickUtils";
+import {ClickUtils} from "../utils/ClickUtils";
 import {ReusableMethods} from "../utils/ReusableMethods";
 import {SendKeysUtils} from "../utils/SendKeysUtils";
-import {logger} from "../utils/logger";
+import {LoggerHelper} from "../utils/LoggerHelper";
 
 test('US006TC01--> Anasayfa body bölümünde Featured Courses baslıgı altında öne cıkan kurslar görüntülenebilmeli ve tıklandıgında ilgili sayfaya yönlendirmelidir.', async ({ page }) => {
 
@@ -10,9 +10,9 @@ test('US006TC01--> Anasayfa body bölümünde Featured Courses baslıgı altınd
     const sendKeys = new SendKeysUtils(page);
     const methods = new ReusableMethods(page);
 
-    logger.info("=".repeat(90));
-    logger.info("US006--> Anasayfa body bölümünde Featured Courses baslıgı altında öne cıkan kurslar görüntülenebilmeli ve tıklandıgında ilgili sayfaya yönlendirmelidir.")
-    logger.info("=".repeat(90));
+    LoggerHelper.logInfo("=".repeat(90));
+    LoggerHelper.logInfo("US006--> Anasayfa body bölümünde Featured Courses baslıgı altında öne cıkan kurslar görüntülenebilmeli ve tıklandıgında ilgili sayfaya yönlendirmelidir.")
+    LoggerHelper.logInfo("=".repeat(90));
 
     await page.goto('https://qa.instulearn.com/');
 
@@ -20,9 +20,9 @@ test('US006TC01--> Anasayfa body bölümünde Featured Courses baslıgı altınd
     //const featuredCoursesText= page.getByText('Featured Courses #Browse');
     await expect(page.getByText('Featured Courses #Browse')).toBeVisible();
 
-    logger.info("=".repeat(90));
-    logger.info("featured Courses element gorunurlugu dogrulandi");
-    logger.info("=".repeat(90));
+    LoggerHelper.logInfo("=".repeat(90));
+    LoggerHelper.logInfo("featured Courses element gorunurlugu dogrulandi");
+    LoggerHelper.logInfo("=".repeat(90));
 
     await page.getByRole('link', { name: 'Mastering Java Programming' }).first().click();
 
@@ -41,8 +41,8 @@ test('US006TC02-->Anasayfa body bölümünde Newest Courses baslıgı altında y
     const sendKeys = new SendKeysUtils(page);
     const methods = new ReusableMethods(page);
 
-    logger.info("=".repeat(90));
-    logger.info("US006TC02-->Test basliyor")
+    LoggerHelper.logInfo("=".repeat(90));
+    LoggerHelper.logInfo("US006TC02-->Test basliyor")
 
     // ana sayfaya gitmekliklik
     await page.goto('https://qa.instulearn.com/');
@@ -72,8 +72,8 @@ test('US006TC03-->Anasayfa body bölümünde Latest bundles baslıgı altında s
     const sendKeys = new SendKeysUtils(page);
     const methods = new ReusableMethods(page);
 
-    logger.info("=".repeat(90));
-    logger.info("US006TC03-->Test basliyor")
+    LoggerHelper.logInfo("=".repeat(90));
+    LoggerHelper.logInfo("US006TC03-->Test basliyor")
 
     // ana sayfaya gitmekliklik
     await page.goto('https://qa.instulearn.com/');

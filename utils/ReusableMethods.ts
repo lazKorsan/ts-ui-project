@@ -1,5 +1,5 @@
 // utils/ReusableMethods.ts
-import { Page, Locator, expect } from '@playwright/test';
+import {expect, Locator, Page} from '@playwright/test';
 
 /**
  * Terminal renk kodları için enum
@@ -323,5 +323,9 @@ export class ReusableMethods {
             });
             throw error;
         }
+    }
+
+    public static logInfo(message: string): void {
+        console.log(`${ConsoleColors.Cyan}ℹ️ ${message}${ConsoleColors.Reset}`);
     }
 }

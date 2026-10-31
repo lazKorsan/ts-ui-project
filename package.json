@@ -9,9 +9,11 @@
   "license": "ISC",
   "type": "commonjs",
   "devDependencies": {
+    "@cucumber/cucumber": "^13.2.1",
     "@playwright/test": "^1.62.0",
-    "@types/node": "^26.1.2",
-    "@types/winston": "^2.4.4"
+    "@types/node": "^26.2.0",
+    "@types/winston": "^2.4.4",
+    "ts-node": "^10.9.2"
   },
   "dependencies": {
     "winston": "^3.19.0"
